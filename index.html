@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Insta Imagebox</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+        #main{
+            padding: 15%;
+        }
+        body{
+            text-align: center;
+            background-image: url(assets/images/wall.jpg);
+            background-repeat: no-repeat;
+            opacity: 0.9;
+        }
+        .jumbotron{
+            z-index: 1;
+            background-color: #eaeaea;
+        } 
+        footer {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            color: #a5a5a5;
+        }
+        a{
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="main" class="container">
+        <div class="jumbotron" id="jumbo">
+            <h1>Insta Imagebox</h1>
+            <br />
+            <div><button id="login" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-log-in"></span> Login</button></div>
+        </div>
+    </div>
+
+    <!--footer-->
+    <footer class="text-center">
+            <div>&copy copyright | Made by <a href="https://github.com/salif-04">salif-04</a></div>
+    </footer>
+
+
+    <script>
+    var client_id = "";
+    $.get("https://xyz.com/assets/req/client_id.json", function(data, status){
+        if (status == "success") {
+            client_id = data.client_id;
+        }
+    });
+        $("#login").click(function(){
+            document.location.href = "https://api.instagram.com/oauth/authorize/?client_id="+client_id+"&redirect_uri=https://xyz.com/images.html&response_type=token";
+        });
+    </script>
+</body>
+</html>

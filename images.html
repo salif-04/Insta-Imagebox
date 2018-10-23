@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Insta Imagebox</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+            footer {
+                  position: fixed;
+                  left: 0;
+                  bottom: 0;
+                  width: 100%;
+                  text-align: center;
+                  color: #a5a5a5;
+              }
+              a{
+                  text-decoration: none;
+              }
+              p{
+					color: black;
+              }
+        </style>
+</head>
+<body>
+	<nav class="navbar navbar-inverse">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span> 
+                </button>
+                <a class="navbar-brand" href="#" onclick="logout()">Insta Imagebox</a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#" id="posts"></a></li>
+                    <li><a href="#" id="followers"></a></li>
+                    <li><a href="#" id="following"></a></li>
+                    <li><a href="#" onclick="logout()"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!--profile info-->
+    <div class="container jumbotron">
+        <div class="col-xs-4">
+                <img src="" class="card-img-top img-thumbnail" id="dp" style="padding:3px;" />
+        </div>
+        <div class="col-xs-8">
+        	<div><h2><span id="full_name"></span><i id="user_name"></i></h2></div>
+            <div><h4 id="bio"></h4></div>
+            <div><h4 id="website"></h4></div>
+        </div>
+    </div>
+    
+    <!--thumbnails-->
+    <div id="thumbnails" class="container text-center" style="margin-top:5%;">
+    </div>
+    
+    <script>
+        function getQueryVariable(variable) {
+        var query = window.location.href;
+        var vars = query.split("#");
+        for (var i=0;i<vars.length;i++) {
+                var pair = vars[i].split("=");
+                if (pair[0] == variable) {
+                return pair[1];
+                }
+            }
+        }
+
+        var token = getQueryVariable("access_token");
+        var basic_url = "https://api.instagram.com/v1/users/self/?access_token="+ token;
+        var media_url = "https://api.instagram.com/v1/users/self/media/recent/?access_token=" + token;
+
+        function set_meta(data) {
+        	$("#full_name").html(data.data.full_name);
+            $("#user_name").html("("+data.data.username+")");
+            $("#dp").attr("src",data.data.profile_picture);
+            $("#posts").html("Posts : "+data.data.counts.media);
+            $("#followers").html("Followers : "+data.data.counts.follows);
+            $("#following").html("Followings : "+data.data.counts.followed_by);
+            var bio = ":-)";
+            if (data.data.bio != null)
+            	bio = data.data.bio;
+            $("#bio").html(bio);
+            if (data.data.bio != null)
+            	$("#website").html("<a href='"+data.data.website+"' target='_blank'>"+data.data.website+"</a>");
+            
+        }
+        
+        function logout() {
+            $.get("https://instagram.com/accounts/logout/",function(data,status) {
+            	document.location.href = "index.html";
+            });
+        }
+
+        function get_images(max_img) {
+            $.get(media_url,function(response, status) {
+                if (status == "success" && response.meta.code == 200) {
+                    for(var i=0;i<response.data.length;i++) {
+                        var thumb = response.data[i].images.thumbnail.url;
+                        var image = response.data[i].images.standard_resolution.url;
+                        if (response.data[i].type == "video")
+                            image = response.data[i].videos.standard_resolution.url;
+                        var caption = ":-)";
+                        if (response.data[i].caption != null)
+                        	caption = response.data[i].caption.text;
+                        $("#thumbnails").prepend('<div class="card col-xs-6 col-md-4 col-lg-3"><div class="jumbotron"><img src="'+thumb+'" title="'+caption+'" class="card-img-top img-thumbnail" style="padding:3px;" /><div class="card-body"><p class="card-text"><span class="glyphicon glyphicon-heart"></span> '+response.data[i].likes.count+' <span class="glyphicon glyphicon-comment"></span> '+response.data[i].comments.count+'</p></div><a href="'+image+'" download="instagram" target="_blank"><button class="btn btn-primary btn-lg">Download</button></a></div></div>');
+                    }
+                }
+                else {
+                    window.alert("Image Laod fail");
+                    document.location.href = "index.html";
+                }
+            }); 
+        }
+
+        var url = "https://api.instagram.com/v1/users/self/?access_token="+token;
+        $.get(basic_url,
+            function(data, status) {
+                if (status == "success" && data.meta.code == 200) {
+                    set_meta(data);
+                    get_images(data.data.counts.media);
+                }
+                else {
+                    window.alert(data.meta.code + " : "+status);
+                    document.location.href = "index.html";
+                }
+            });
+    </script>
+
+    <!--footer-->
+    <footer class="text-center">
+            <div>&copy copyright | Made by <a href="https://github.com/salif-04">salif-04</a></div>
+    </footer>
+</body>
+</html>
